@@ -1,0 +1,11 @@
+sysguard
+*.o
+*.ko
+*.mod
+*.mod.c
+*.order
+*.symvers
+*.log
+Module.symvers
+modules.order
+.cache/
