@@ -1,204 +1,236 @@
 # SysGuard – Linux System Health Monitor
 
-SysGuard is a Linux-only C++ command-line system monitoring tool designed to demonstrate Linux system programming, computer architecture concepts, process/resource monitoring, and user-space/kernel-space communication.
+> A Linux-only C++ system monitoring and diagnostic tool demonstrating Linux system programming, process/resource monitoring, computer architecture concepts, and kernel/user-space interaction.
 
-## Features
+## Project Overview
 
-- Linux system and kernel information
-- CPU architecture and CPU usage monitoring
-- RAM and swap usage
-- Disk usage
-- Process count and process listing
+**SysGuard** consolidates commonly needed Linux system-health information into one lightweight terminal application. It monitors CPU, memory, storage, processes, system information, and overall health status.
+
+The project also includes a **minimal Linux character-device driver source** (`/dev/sysguard`) to demonstrate kernel-module and user-space/kernel-space concepts.
+
+## Key Features
+
+- System and kernel information
+- CPU model, core count, utilization and load average
+- RAM and swap monitoring
+- Root filesystem monitoring
+- Linux process enumeration
 - Process search
-- Process termination using Linux signals
-- System health assessment
-- Optional Linux character device driver: `/dev/sysguard`
-- Logging of monitoring snapshots
-- Modular C++ design
-- Make-based build
+- Controlled process termination using `SIGTERM`
+- Overall health calculation: `HEALTHY`, `WARNING`, `CRITICAL`
+- Health snapshot logging
+- Modular C++17 structure
+- Linux character-device driver source
+- Make-based build and Git/GitHub workflow
 
-## Technology
+## Technology Stack
 
-- Operating System: Linux
-- Language: C++17 for the application
-- Kernel module: C
-- Build: GNU Make / g++
-- Version control: Git
+| Area | Technology |
+|---|---|
+| OS | Linux / Ubuntu |
+| Application | C++17 |
+| Driver source | C |
+| Compiler | GNU g++ |
+| Build | GNU Make |
+| Version control | Git |
+| Repository | GitHub |
+| Interface | Terminal / CLI |
 
-## Project Architecture
+## Architecture
 
 ```text
-+-----------------------------+
-|       SysGuard C++ CLI      |
-+--------------+--------------+
-               |
-       Linux system interfaces
-               |
-   +-----------+-----------+
-   |           |           |
- /proc       /sys      statvfs()
-   |           |           |
-   +-----------+-----------+
-               |
-          Linux Kernel
-               |
-      +--------+--------+
-      |                 |
-     CPU              Memory
-      |
-    Storage / Processes
+                    +----------------------+
+                    |    SysGuard CLI      |
+                    |       C++17          |
+                    +----------+-----------+
+                               |
+                    Linux system interfaces
+                               |
+              +----------------+----------------+
+              |                |                 |
+            /proc             /sys          statvfs()
+              |                |                 |
+              +----------------+----------------+
+                               |
+                         Linux Kernel
+                               |
+                     CPU / Memory / FS /
+                         Processes
 
 Optional driver path:
-
-SysGuard C++ -> /dev/sysguard -> Linux character driver -> Kernel
+SysGuard C++ -> /dev/sysguard -> Character Driver -> Linux Kernel
 ```
 
-## Project Structure
+## C++ Modules
 
 ```text
-SysGuard/
-├── src/
-│   ├── main.cpp
-│   ├── cpu_monitor.cpp
-│   ├── memory_monitor.cpp
-│   ├── process_monitor.cpp
-│   ├── disk_monitor.cpp
-│   ├── system_info.cpp
-│   └── health_monitor.cpp
-├── include/
-│   ├── cpu_monitor.hpp
-│   ├── memory_monitor.hpp
-│   ├── process_monitor.hpp
-│   ├── disk_monitor.hpp
-│   ├── system_info.hpp
-│   └── health_monitor.hpp
-├── driver/
-│   ├── sysguard_driver.c
-│   └── Makefile
-├── docs/
-├── tests/
-├── Makefile
-└── README.md
+SystemInfo
+CPUMonitor
+MemoryMonitor
+DiskMonitor
+ProcessMonitor
+HealthMonitor
+Logger
 ```
 
-## Build
+The application is separated into headers and implementation files to demonstrate modular C++ design.
 
-Install the basic development tools on Debian/Ubuntu:
+## Linux/System Programming Concepts
 
-```bash
-sudo apt update
-sudo apt install build-essential g++ make git
-```
+- `/proc` virtual filesystem
+- Linux process model and PIDs
+- Linux signals (`SIGTERM`)
+- `uname()`
+- `statvfs()`
+- File and stream operations
+- User space vs kernel space
+- Character devices
+- Kernel modules
+- Git-based development
 
-Then:
+## Build the Application
+
+From the project root:
 
 ```bash
 make
-./sysguard
 ```
 
-## Run
+Run:
 
 ```bash
 ./sysguard
 ```
 
-The application provides a menu for system information, CPU, memory, disk, processes, process search/termination, health status, and logging.
+## Verified Run Environment
 
-## Optional Kernel Driver
+The application was actually built and tested in:
 
-The `driver/` directory contains a small Linux character device driver using the misc-device interface.
-
-Install matching kernel headers:
-
-```bash
-sudo apt install linux-headers-$(uname -r)
+```text
+OS            : Ubuntu 26.04.1 LTS
+Kernel        : 6.18.40.1-microsoft-standard-WSL2
+Architecture  : x86_64
+CPU           : AMD Ryzen 7 6800H with Radeon Graphics
+CPU Cores     : 16
 ```
 
-Build:
+### Verified Dashboard Result
+
+```text
+CPU Usage      : 0.0%
+Load Average   : 0.1
+Memory Usage   : 7.9%
+Disk Usage     : 5.3%
+Processes      : 26
+System Health  : HEALTHY
+```
+
+### Verified Process Search
+
+Searching for `bash` returned:
+
+```text
+PID 330  bash
+PID 633  bash
+Matches: 2
+```
+
+### Verified Logging
+
+`sysguard.log` produced:
+
+```text
+CPU=0.00, MEMORY=7.91, DISK=5.26, STATUS=HEALTHY
+```
+
+## Menu
+
+```text
+1. System dashboard
+2. System information
+3. List processes
+4. Search process
+5. Terminate process
+6. Save health snapshot to log
+0. Exit
+```
+
+## Character Driver Component
+
+The repository contains:
+
+```text
+driver/sysguard_driver.c
+driver/Makefile
+```
+
+The driver uses the Linux misc-device framework and is designed to expose:
+
+```text
+/dev/sysguard
+```
+
+### WSL limitation observed during development
+
+The project was developed in WSL2. The running kernel reported:
+
+```text
+6.18.40.1-microsoft-standard-WSL2
+```
+
+but the matching kernel development directory was not available:
+
+```text
+/lib/modules/6.18.40.1-microsoft-standard-WSL2/build
+```
+
+Therefore the driver **source is included and documented, but driver compilation/loading was not validated in this WSL environment**. The application itself was successfully built and executed.
+
+For a native Linux machine with matching kernel headers, the driver can be built with:
 
 ```bash
 cd driver
 make
-```
-
-Load:
-
-```bash
 sudo insmod sysguard_driver.ko
-ls -l /dev/sysguard
-```
-
-Test:
-
-```bash
 cat /dev/sysguard
-```
-
-Unload:
-
-```bash
 sudo rmmod sysguard_driver
 ```
 
-If `/dev/sysguard` is not created automatically on a particular distribution, inspect:
-
-```bash
-dmesg | tail
-ls -l /dev/sysguard
-```
-
-## Safety Note
-
-The process termination option sends a signal to a PID selected by the user. Do not terminate essential system processes. Use a harmless test process during demonstration.
-
-## Example Output
-
-```text
-============================================================
-                    SYSGUARD
-             LINUX SYSTEM HEALTH MONITOR
-============================================================
-
-System: Linux
-Kernel: 6.x
-Architecture: x86_64
-
-CPU Usage: 34.7%
-Memory Usage: 48.2%
-Disk Usage: 57.4%
-Processes: 214
-
-Health Status: HEALTHY
-============================================================
-```
-
-The exact values depend on the machine on which SysGuard is executed.
-
-## Stage Documentation
+## Testing
 
 See:
 
-- `docs/STAGE1_INTRODUCTION.md`
-- `docs/STAGE2_REQUIREMENTS.md`
-- `docs/STAGE3_DESIGN.md`
-- `docs/STAGE4_IMPLEMENTATION.md`
+- `tests/test_plan.md`
 - `docs/STAGE5_TESTING.md`
-- `docs/STAGE6_FINAL.md`
+- `docs/ACTUAL_TEST_RESULTS.md`
+
+## Project Stages
+
+- **Stage 1:** Project Introduction
+- **Stage 2:** Requirements & Development Plan
+- **Stage 3:** System Design & Architecture
+- **Stage 4:** Initial Implementation & Prototype
+- **Stage 5:** Testing, Integration & Improvement
+- **Stage 6:** Final Implementation & Presentation
 
 ## Limitations
 
-- CPU usage is sampled over a short interval.
-- Process CPU percentages are based on Linux `/proc` data.
-- Hardware temperature monitoring is not enabled because sensor availability varies between systems.
-- The optional kernel module requires matching Linux kernel headers and sufficient privileges.
+- Linux-specific
+- CLI only
+- Hardware sensors vary by system
+- Per-process CPU/memory percentages are not included in this version
+- Kernel-driver runtime validation is unavailable in the current WSL environment
 
-## Future Improvements
+## Future Enhancements
 
-- ncurses dashboard
-- Configurable alert thresholds
-- Historical CSV logging
-- Network monitoring
-- Hardware temperature/fan monitoring
-- More driver `ioctl()` commands
-- Unit-test framework integration
+- ncurses-based real-time dashboard
+- Per-process CPU and memory metrics
+- Configurable health thresholds
+- Historical CSV/report generation
+- Temperature and fan monitoring
+- Network statistics
+- Extended driver `ioctl()` support
+
+## GitHub Repository
+
+**Repository:** https://github.com/sanishpanda3113-dev/SysGuard

@@ -1,53 +1,48 @@
 # Stage 6 – Final Implementation & Presentation
 
+## Final Status
+
+The SysGuard C++ application was successfully built and executed on Ubuntu 26.04.1 LTS under WSL2.
+
+Verified features:
+- System information
+- CPU monitoring
+- Memory monitoring
+- Disk monitoring
+- Process enumeration
+- Process search
+- Process termination interface
+- Health status
+- Snapshot logging
+
+## Driver Status
+
+A Linux character-device driver source and Makefile are included in `driver/`.
+
+Runtime driver validation was not performed in the WSL environment because the matching kernel build tree was unavailable for the running WSL kernel.
+
 ## Final Deliverables
 
 - C++ source code
-- Linux kernel driver source
+- Driver source
 - Makefiles
-- README.md
-- Stage documentation
-- UML/architecture diagrams
-- Test results
+- README
+- Six-stage documentation
+- Testing documentation
+- PowerPoint presentation
 - GitHub repository
-- Presentation
-
-## Achievements
-
-- Developed a modular Linux C++ monitoring application.
-- Used Linux system interfaces and system calls.
-- Demonstrated CPU, memory, disk and process monitoring.
-- Added process search and controlled termination.
-- Implemented health thresholds and logging.
-- Added a minimal character-device driver component.
-
-## Limitations
-
-- Resource values are Linux-specific.
-- Hardware sensor support varies by system.
-- Process CPU percentages are not currently shown per process.
-- The driver is intentionally minimal.
-- No graphical interface is included.
-
-## Future Improvements
-
-- ncurses-based real-time dashboard
-- Per-process CPU and memory metrics
-- Configurable thresholds
-- Historical reports
-- More device-driver commands
-- Temperature/fan monitoring
-- Network statistics
 
 ## Presentation Flow
 
-1. Problem and motivation
+1. Problem
 2. Objectives
 3. Architecture
-4. Linux concepts used
-5. C++ modules
-6. Driver component
-7. Live demonstration
-8. Testing
-9. Limitations
-10. Future scope
+4. Modules
+5. Linux/system-programming concepts
+6. Live dashboard demo
+7. Process search demo
+8. Logging demo
+9. Driver component and WSL limitation
+10. Testing and results
+11. Limitations
+12. Future enhancements
